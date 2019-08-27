@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+   app:
+      build: .
+      ports:
+      - 8099:8099
+      depends_on:
+      - rabbit
+      - postgres
+      command: ["./wait-for-it.sh", "-t", "30", "rabbit:5672", "--", "./wait-for-it.sh", "-t", "30", "postgres:5432", "--", "java", "-jar", "application.war"] 
+   rabbit:
+      image: rabbitmq:3-management
+      hostname: rabbit
+      environment:
+         RABBITMQ_DEFAULT_USER: rabbitmq-docker
+         RABBITMQ_DEFAULT_PASS: rabbitmq-docker
+         RABBITMQ_DEFAULT_VHOST: docker
+      ports:
+      - 5672:5672
+      - 15672:15672
+   flyway:
+    image: dhoer/flyway:alpine
+    build: src/docker/flyway/
+    entrypoint: ["/flyway/bin/wait-for-it.sh", "postgres:5432", "--", "flyway"]
+    command: ["-url=jdbc:postgresql://postgres:5432/db-docker", "-baselineOnMigrate=true", "-schemas=public", "-user=docker-postgres-user", "-password=docker-postgres-password", "info", "migrate", "info"]
+    depends_on:
+      - postgres
+   postgres:
+      image: postgres:12-alpine
+      hostname: database
+      ports:
+      - 5432:5432
+      environment:
+      - POSTGRES_USER=docker-postgres-user
+      - POSTGRES_PASSWORD=docker-postgres-password
+      - POSTGRES_DB=db-docker

@@ -1,0 +1,22 @@
+info:
+   java:
+      source: ${java.version}
+logging:
+   level:
+      root: INFO
+server:
+   port: 8099
+   servlet:
+      contextPath: /jbrasileiro
+spring:
+   application:
+      name: micro-service developed by jbrasileiro
+   datasource:
+      url: jdbc:postgresql://postgres:5432/db-docker
+      username: docker-postgres-user
+      password: docker-postgres-password
+      driverClassName: org.postgresql.Driver
+   jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
